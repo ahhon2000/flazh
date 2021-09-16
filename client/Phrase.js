@@ -1,7 +1,8 @@
 
 flazhGlob.Phrase = class {
-    constructor(stack) {
+    constructor(stack, kwarg) {
         this.stack = stack;
+        Object.assign(this, kwarg);
         console.log('phrase constructor');
     }
 }
