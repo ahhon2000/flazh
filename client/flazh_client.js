@@ -1,8 +1,11 @@
 
+let flazhGlob = {};
 
-$.getScript('Phrase.js', function() {
-    let fzh = new Flazh();
-    flashGlob.flazh = fzh;
+$(function() {
+    requireScripts(['Flazh.js', 'Phrase.js'], function() {
+        let fzh = new Flazh();
+        flazhGlob.flazh = fzh;
 
-    let p = new Phrase();
+        let p = new Phrase(fzh);
+    });
 });
