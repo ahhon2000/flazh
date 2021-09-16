@@ -1,7 +1,7 @@
 
-Phrase = class Phrase {
-    constructor(flazh) {
-        this.flazh = flazh;
-        console.log('phrase');
+flazhGlob.Phrase = class {
+    constructor(stack) {
+        this.stack = stack;
+        console.log('phrase constructor');
     }
 }

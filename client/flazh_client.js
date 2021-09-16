@@ -2,10 +2,10 @@
 let flazhGlob = {};
 
 $(function() {
-    requireScripts(['Flazh.js', 'Phrase.js'], function() {
-        let fzh = new Flazh();
-        flazhGlob.flazh = fzh;
+    requireScripts(['Stack.js', 'Phrase.js'], function() {
+        let sta = new flazhGlob.Stack();
+        flazhGlob.flazh = sta;
 
-        let p = new Phrase(fzh);
+        let p = new flazhGlob.Phrase(sta);
     });
 });
