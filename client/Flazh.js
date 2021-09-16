@@ -1,7 +1,8 @@
-let flazhGlob = {
-};
 
-$(function() {
-    class Flazh {
+let flazhGlob = {};
+
+class Flazh {
+    constructor() {
+        console.log('flazh');
     }
-});
+};
