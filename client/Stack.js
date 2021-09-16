@@ -6,7 +6,7 @@ requireScripts(['Phrase.js', 'ClientRequests.js'], function() {
             this.currentPhrase = undefined;
             this.nextPhrase = undefined;
 
-            this.previousEvent = undefined;
+            this.previousAnswer = undefined;
 
             this.reqQueue = [];
 
@@ -14,26 +14,77 @@ requireScripts(['Phrase.js', 'ClientRequests.js'], function() {
             this.sendRequests();
         }
 
+        onAnswerCancellation(kwarg={}) {
+            kwarg = Object.assign({sendRequests: true}, kwarg);
+
+            let a = this.previousAnswer;
+            if(a) {
+                a.cancel();
+                this.previousAnswer = undefined;
+            }
+
+            if(kwarg.sendRequests) this.sendRequests();
+        }
+
+        onPostpone(h, kwarg={}) {
+            kwarg = Object.assign({sendRequests: true}, kwarg);
+
+            let p = this.currentPhrase;
+            if(p) {
+                p.postpone(h);
+
+                this.previousAnswer = undefined;
+                this.previousPhrase = p;
+                this.currentPhrase = this.nextPhrase;
+                this.nextPhrase = undefined;
+
+                this.draw(1);
+            }
+
+            if(kwarg.sendRequests) this.sendRequests();
+        }
+
+        onAnswerCancelAndPostpone(h, kwarg={}) {
+            kwarg = Object.assign({sendRequests: true}, kwarg);
+
+            let p = this.previousPhrase;
+            let a = this.previousAnswer;
+
+            if(p && a) {
+                this.onAnswerCancellation({sendRequests: false});
+                p.postpone(h);
+            }
+
+            if(kwarg.sendRequests) this.sendRequests();
+        }
+
+        onAnswerEdit(newVals={}) {
+            let a = this.previousAnswer;
+            if(a === undefined) return;
+            a.edit(newVals);
+            this.sendRequests();
+        }
+
         onAnswer(corr) {
             let p = this.currentPhrase;
             if(!p) return;
 
-            let e = flazhGlob.Event(this, p, {
+            let a = flazhGlob.Event(this, p, {
                 type: 'answer',
                 correctAnswer: corr,
             });
 
-            e.makeRequest();
+            a.createRequest();
 
             let nToDraw = this.nextPhrase ? 1 : 2;
             this.draw(nToDraw);
 
-            this.sendRequests();
-
-            this.previousEvent = e;
+            this.previousAnswer = a;
             this.previousPhrase = p;
             this.currentPhrase = this.nextPhrase;
             this.nextPhrase = undefined;
+
+            this.sendRequests();
         }
 
         onNewEventResponse(rsp) {
@@ -43,9 +94,9 @@ requireScripts(['Phrase.js', 'ClientRequests.js'], function() {
                 );
             }
 
-            let e = this.previousEvent;
-            if(e && e.clientEventId == rsp.clientEventId) {
-                e.onNewEventResponse(rsp);
+            let a = this.previousAnswer;
+            if(a && a.clientEventId == rsp.clientEventId) {
+                a.onNewEventResponse(rsp);
             }
         }
 
