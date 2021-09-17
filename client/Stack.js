@@ -90,7 +90,7 @@ requireScripts(['Phrase.js', 'ClientRequests.js'], function() {
         onNewEventResponse(rsp) {
             if(rsp.errors.length) {
                 throw new Error('Failed to submit the new event: ' +
-                    rsp.errors.join("\n");
+                    rsp.errors.join("\n")
                 );
             }
 
@@ -103,7 +103,7 @@ requireScripts(['Phrase.js', 'ClientRequests.js'], function() {
         onDrawResponse(rsp) {
             if(rsp.errors.length) {
                 throw new Error('Could not get phrases from the server: ' +
-                    rsp.errors.join("\n");
+                    rsp.errors.join("\n")
                 );
             }
 
