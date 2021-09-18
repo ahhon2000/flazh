@@ -8,10 +8,6 @@ define(['lib/socket.io.min', 'core/Stack'], function(io, Stack) {
 
                 let sock = io('http://127.0.0.1:5000'); // TODO rmme
                 this.sock = sock;
-
-                sock.emit('my_message', 'test334');
-                console.log('original Flazh');
-                $('body').append('<br>jQuery works, too!');
             }
         },
     };

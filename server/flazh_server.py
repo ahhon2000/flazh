@@ -18,6 +18,7 @@ def connect(sid, environ):
 @sio.event
 def my_message(sid, data):
     print('message ', data)
+    sio.emit('message_response', f'server says: got message: {data}', room=sid)
 
 @sio.event
 def disconnect(sid):
