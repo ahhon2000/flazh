@@ -1,9 +1,10 @@
 
-let flazhGlob = {};
 
-$(function() {
-    requireScripts(['Stack.js'], function() {
-        let sta = new flazhGlob.Stack();
-        flazhGlob.stack = sta;
-    });
+define(['Stack'], function(Stack) {
+    let mod = {};
+
+    let sta = new Stack.Stack();
+    mod.stack = sta;
+
+    return mod;
 });
