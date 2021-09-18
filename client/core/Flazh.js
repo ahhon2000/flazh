@@ -1,5 +1,5 @@
 
-define(['socket.io.min.js', 'Stack'], function(io, Stack) {
+define(['lib/socket.io.min.js', 'core/Stack'], function(io, Stack) {
     return {
         Flazh: class {
             constructor() {

@@ -1,5 +1,6 @@
+define({
 
-flazhGlob.Event = class {
+Event: class {
     constructor(stack, phrase, kwarg) {
         this.stack = stack;
         this.phrase = phrase;
@@ -90,4 +91,6 @@ flazhGlob.Event = class {
             this.createRequest();
         });
     }
-}
+} // class
+
+}); // define

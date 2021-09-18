@@ -1,4 +1,4 @@
-define(['Flazh'], function(Flazh) {
+define(['core/Flazh'], function(Flazh) {
     let mod = {
         flazh: new Flazh.Flazh(),
     };
