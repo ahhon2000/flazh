@@ -4,7 +4,7 @@ from pathlib import Path
 FLAZH_ROOT_DIR = Path(__file__).absolute().parent.parent
 DEBUG_PLACEHOLDER_FILE = FLAZH_ROOT_DIR / '.debug_placeholder'
 DEBUG = DEBUG_PLACEHOLDER_FILE.exists()
-
+DEFAULT_PORT = 5490
 
 class FlazhServer:
     def __init__(self, allowCors=True, **sock_kwarg):
@@ -27,9 +27,9 @@ class FlazhServer:
             print('connect ', sid)
 
         @sock.event
-        def client_message(sid, data):
-            print('client_message: ', data)
-            sock.emit('server_message', f'got message: {data}', room=sid)
+        def client_messages(sid, data):
+            print('client_messages: ', data)
+            sock.emit('server_messages', f'got message: {data}', room=sid)
 
         @sock.event
         def disconnect(sid):

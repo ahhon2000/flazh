@@ -13,7 +13,7 @@ module.Flazh = class {
         kwarg = Object.assign({
             protocol: 'https',
             server: '127.0.0.1',
-            port: 5940,
+            port: 5490,
             user: '',
             authKey: '',
             debug: false,
@@ -29,6 +29,7 @@ module.Flazh = class {
         Object.assign(this, kwarg);
 
         let uri = this.protocol + '://' + this.server + ':' + this.port;
+        console.log('debug uri =', uri); // TODO rmme
         let sock = io(uri);
         this.sock = sock;
 
