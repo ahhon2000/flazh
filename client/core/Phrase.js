@@ -16,7 +16,7 @@ Phrase: class {
 
         let stack = this.stack;
 
-        stack.request({
+        stack.pushMessage({
             'type': 'postpone_phrase',
             'h': h,
             'phrase_id': this.id,

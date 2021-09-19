@@ -1,36 +1,47 @@
-define(['core/Phrase', 'core/ClientRequests'],
-function(Phrase, ClientRequests) {
+define(['core/Phrase'],
+function(Phrase) {
 return {
 
 Stack: class {
-    constructor() {
+    constructor(fzh) {
+        this.flazh = fzh;
+
         this.previousPhrase = undefined;
         this.currentPhrase = undefined;
         this.nextPhrase = undefined;
 
         this.previousAnswer = undefined;
 
-        this.reqQueue = [];
-
         this.draw(2);
-        this.sendRequests();
+        fzh.sendMessages();
+    }
+
+    pushMessage(m) {
+        m = Object.assign({}, m, {
+            stack_id: this.stack_id,
+        });
+
+        let fzh = this.fzh;
+        fzh.pushMessage(m);
     }
 
     onAnswerCancellation(kwarg={}) {
-        kwarg = Object.assign({sendRequests: true}, kwarg);
+        kwarg = Object.assign({sendMessages: true}, kwarg);
 
+        let fzh = this.flazh;
         let a = this.previousAnswer;
         if(a) {
             a.cancel();
             this.previousAnswer = undefined;
         }
 
-        if(kwarg.sendRequests) this.sendRequests();
+        if(kwarg.sendMessages) fzh.sendMessages();
     }
 
     onPostpone(h, kwarg={}) {
-        kwarg = Object.assign({sendRequests: true}, kwarg);
+        kwarg = Object.assign({sendMessages: true}, kwarg);
 
+        let fzh = this.flazh;
         let p = this.currentPhrase;
         if(p) {
             p.postpone(h);
@@ -43,31 +54,34 @@ Stack: class {
             this.draw(1);
         }
 
-        if(kwarg.sendRequests) this.sendRequests();
+        if(kwarg.sendMessages) fzh.sendMessages();
     }
 
     onAnswerCancelAndPostpone(h, kwarg={}) {
-        kwarg = Object.assign({sendRequests: true}, kwarg);
+        kwarg = Object.assign({sendMessages: true}, kwarg);
 
+        let fzh = this.flazh;
         let p = this.previousPhrase;
         let a = this.previousAnswer;
 
         if(p && a) {
-            this.onAnswerCancellation({sendRequests: false});
+            this.onAnswerCancellation({sendMessages: false});
             p.postpone(h);
         }
 
-        if(kwarg.sendRequests) this.sendRequests();
+        if(kwarg.sendMessages) fzh.sendMessages();
     }
 
     onAnswerEdit(newVals={}) {
+        let fzh = this.flazh;
         let a = this.previousAnswer;
         if(a === undefined) return;
         a.edit(newVals);
-        this.sendRequests();
+        fzh.sendMessages();
     }
 
     onAnswer(corr) {
+        let fzh = this.flazh;
         let p = this.currentPhrase;
         if(!p) return;
 
@@ -86,7 +100,7 @@ Stack: class {
         this.currentPhrase = this.nextPhrase;
         this.nextPhrase = undefined;
 
-        this.sendRequests();
+        fzh.sendMessages();
     }
 
     onNewEventResponse(rsp) {
@@ -132,29 +146,11 @@ Stack: class {
             exclude_phrases.push(this.nextPhrase.id);
         }
 
-        this.request({
+        this.pushMessage({
             'type': 'draw',
             'n': n,
             'exclude_phrases': exclude_phrases,
         });
-    }
-
-    request(rps) {
-        // rps can be a dictionary of request parameters or an array of such
-        // dictionaries
-        if(!Array.isArray(rps)) rps = [rps];
-
-        for(let rp of rps) {
-            rp = Object.assign({}, rp);
-            this.reqQueue.push(rp);
-        }
-    }
-
-    sendRequests() {
-        let r = new ClientRequests.ClientRequests(this.stack, this.reqQueue);
-        r.send();
-        this.reqQueue = [];
-        console.log('requests sent to server');
     }
 },
 

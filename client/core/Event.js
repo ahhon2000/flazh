@@ -37,7 +37,7 @@ Event: class {
 
         if(kwarg.cancel && this.id === undefined) throw new Error('cannot cancel an event without its id');
 
-        let rp = {
+        let m = {
             'type': undefined,
             'event': {
                 'phrase_id': this.phrase.id,
@@ -48,14 +48,14 @@ Event: class {
         };
 
         if(this.id === undefined) {
-            rp.type = 'new_event';
-            rp.clientEventId = this.clientEventId;
+            m.type = 'new_event';
+            m.clientEventId = this.clientEventId;
         } else {
-            rp.type = kwarg.cancel ? 'cancel_event' : 'edit_event';
-            rp['event'].id = this.id;
+            m.type = kwarg.cancel ? 'cancel_event' : 'edit_event';
+            m['event'].id = this.id;
         }
 
-        this.stack.request(rp);
+        this.stack.pushMessage(m);
     }
 
     onNewEventResponse(rsp) {
