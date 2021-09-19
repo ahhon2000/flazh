@@ -32,9 +32,23 @@ module.Flazh = class {
         let sock = io(uri);
         this.sock = sock;
 
-        sock.on('server_message_array', this.onServerMessageArray);
+        sock.on('connect', () => {this.onConnect()});
+        sock.on('server_message_array', (data) => {
+            this.onServerMessageArray(data)
+        });
 
         this.msgQueue = [];
+    }
+
+    onConnect() {
+        console.log('connected; user =', this.user, this.authKey); // TODO rmme
+
+        this.pushMessage({
+            type: 'auth',
+            user: this.user,
+            authKey: this.authKey,
+        });
+        this.sendMessages();
     }
 
     onServerMessageArray(ms) {
@@ -49,10 +63,10 @@ module.Flazh = class {
 
     sendMessages() {
         let q = this.msgQueue;
-        let cms = new ClientMessageArray.ClientMessageArray(
-            this, this.msgQueue, this.user, this.authKey,
+        let cma = new ClientMessageArray.ClientMessageArray(
+            this, this.msgQueue
         );
-        cms.send();
+        cma.send();
 
         q.length = 0;
     }
