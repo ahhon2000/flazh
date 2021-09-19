@@ -1,18 +1,22 @@
-define({
+define(function() {
 
-MSG_TYPES: [],
-ClientMessages: class {
+module = {
+    MSG_TYPES: ['draw'],
+};
+
+module.ClientMessageArray = class {
     constructor(flazh, ms, user, authKey) {
-        this.MESSAGE_TYPES = ['draw'];
         this.user = user;
         this.authKey = authKey;
 
-        if(rps.length === 0) throw new Error('No requests to send');
+        ms = ms.concat();
+
+        if(ms.length === 0) throw new Error('No requests to send');
         this.flazh = flazh;
 
         for(let m of ms) {
             if(m.type === undefined) throw new Error('a client message is missing the type attribute');
-            if(this.MESSAGE_TYPES.indexOf(m.type) < 0) throw new Error('unsupported client request type: ' + rp.type);
+            if(module.MSG_TYPES.indexOf(m.type) < 0) throw new Error('unsupported client request type: ' + m.type);
         }
 
         this.messages = ms;
@@ -23,15 +27,15 @@ ClientMessages: class {
         let sock = fzh.sock;
         let ms = this.messages;
 
-        let payload = {
+        let data = {
             user: this.user,
             authKey: this.authKey,
             messages: ms,
         };
 
-        sock.emit('client_messages', payload);
+        sock.emit('client_message_array', data);
         console.log(ms.length + ' messages sent to the server');
     }
-},
+};
 
-});
+return module;});

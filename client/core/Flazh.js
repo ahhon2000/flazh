@@ -1,6 +1,6 @@
 define(
-    ['lib/socket.io.min', 'core/Stack', 'core/ClientMessages'],
-    function(io, Stack, ClientMessages) {
+    ['lib/socket.io.min', 'core/Stack', 'core/ClientMessageArray'],
+    function(io, Stack, ClientMessageArray) {
 
 let module = {
     INSECURE_PROTOCOLS: ['http', 'ws',],
@@ -29,11 +29,17 @@ module.Flazh = class {
         Object.assign(this, kwarg);
 
         let uri = this.protocol + '://' + this.server + ':' + this.port;
-        console.log('debug uri =', uri); // TODO rmme
         let sock = io(uri);
         this.sock = sock;
 
+        sock.on('server_message_array', this.onServerMessageArray);
+
         this.msgQueue = [];
+    }
+
+    onServerMessageArray(ms) {
+        let sock = this.sock;
+        console.log('server says: ', ms);
     }
 
     pushMessage(m) {
@@ -43,7 +49,7 @@ module.Flazh = class {
 
     sendMessages() {
         let q = this.msgQueue;
-        let cms = new ClientMessages.ClientMessages(
+        let cms = new ClientMessageArray.ClientMessageArray(
             this, this.msgQueue, this.user, this.authKey,
         );
         cms.send();

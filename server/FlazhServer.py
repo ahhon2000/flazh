@@ -27,9 +27,9 @@ class FlazhServer:
             print('connect ', sid)
 
         @sock.event
-        def client_messages(sid, data):
-            print('client_messages: ', data)
-            sock.emit('server_messages', f'got message: {data}', room=sid)
+        def client_message_array(sid, data):
+            print('client_message_array: ', data)
+            sock.emit('server_message_array', f'got message: {data}', room=sid)
 
         @sock.event
         def disconnect(sid):
