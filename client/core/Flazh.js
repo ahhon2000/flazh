@@ -1,10 +1,14 @@
 define(
     ['lib/socket.io.min', 'core/Stack', 'core/ClientMessages'],
     function(io, Stack, ClientMessages) {
-        let module = {
 
+let module = {
+    INSECURE_PROTOCOLS: ['http', 'ws',],
+    SECURE_PROTOCOLS: ['https', 'wss',],
+};
+module.PROTOCOLS = module.INSECURE_PROTOCOLS.concat(module.SECURE_PROTOCOLS);
 
-Flazh: class {
+module.Flazh = class {
     constructor(kwarg={}) {
         kwarg = Object.assign({
             protocol: 'https',
@@ -12,16 +16,19 @@ Flazh: class {
             port: 5940,
             user: '',
             authKey: '',
+            debug: false,
         }, kwarg);
 
-        if(['http', 'https', 'ws', 'wss'].indexOf(kwarg.protocol) < 0) throw new Error('a valid protocol must be specified, not ' + kwarg.protocol);
+        if(module.PROTOCOLS.indexOf(kwarg.protocol) < 0) throw new Error('a valid protocol must be specified, not ' + kwarg.protocol);
+        if(!kwarg.debug && module.SECURE_PROTOCOLS.indexOf(kwarg.protocol) < 0)
+            throw new Error('this protocol can only be used in debugging mode :' + kwarg.protocol);
 
         if(!kwarg.server) throw new Error('a server must be given');
         if(!kwarg.user) throw new Error('a user must be given');
 
         Object.assign(this, kwarg);
 
-        let uri = 'http://' + this.server + ':' + this.port;
+        let uri = this.protocol + '://' + this.server + ':' + this.port;
         let sock = io(uri);
         this.sock = sock;
 
@@ -42,13 +49,9 @@ Flazh: class {
 
         q.length = 0;
     }
-}, // class
+};
 
 
-//
-// end of define
-//
-        }; // module
-        return module;
-    }
-);
+return module;
+
+}); // define
