@@ -1,6 +1,9 @@
 define(
-    ['lib/socket.io.min', 'core/Stack', 'core/ClientMessageArray'],
-    function(io, Stack, ClientMessageArray) {
+    [
+        'lib/socket.io.min', 'core/Stack',
+        'core/ClientMessageArray', 'core/ServerMessageArray'
+    ],
+    function(io, Stack, ClientMessageArray, ServerMessageArray) {
 
 let module = {
     INSECURE_PROTOCOLS: ['http', 'ws',],
@@ -26,23 +29,28 @@ module.Flazh = class {
         if(!kwarg.server) throw new Error('a server must be given');
         if(!kwarg.user) throw new Error('a user must be given');
 
+        this.clientMessageArray = undefined;
+        this.newClientMessageArray();
+
         Object.assign(this, kwarg);
 
         let uri = this.protocol + '://' + this.server + ':' + this.port;
         let sock = io(uri);
         this.sock = sock;
 
-        sock.on('connect', () => {this.onConnect()});
+        sock.on('connect', () => {this.onReconnect()});
+        sock.on('disconnect', () => {this.onDisconnect()});
         sock.on('server_message_array', (data) => {
             this.onServerMessageArray(data)
         });
-
-        this.msgQueue = [];
     }
 
-    onConnect() {
-        console.log('connected; user =', this.user, this.authKey); // TODO rmme
+    newClientMessageArray() {
+        let cma = new ClientMessageArray.ClientMessageArray(this);
+        this.clientMessageArray = cma;
+    }
 
+    onReconnect() {
         this.pushMessage({
             type: 'auth',
             user: this.user,
@@ -51,24 +59,25 @@ module.Flazh = class {
         this.sendMessages();
     }
 
+    onDisconnect() {
+        console.log('disconnected');
+    }
+
     onServerMessageArray(ms) {
-        let sock = this.sock;
-        console.log('server says: ', ms);
+        let sma = new ServerMessageArray.ServerMessageArray(this, ms);
+        sma.processMessages()
     }
 
     pushMessage(m) {
         m = Object.assign({}, m);
-        this.msgQueue.push(m);
+        let cma = this.clientMessageArray;
+        cma.pushMessage(m);
     }
 
     sendMessages() {
-        let q = this.msgQueue;
-        let cma = new ClientMessageArray.ClientMessageArray(
-            this, this.msgQueue
-        );
+        let cma = this.clientMessageArray;
         cma.send();
-
-        q.length = 0;
+        this.newClientMessageArray();
     }
 };
 

@@ -5,17 +5,19 @@ module = {
 };
 
 module.ClientMessageArray = class {
-    constructor(flazh, ms) {
+    constructor(flazh, ms=[]) {
         ms = ms.concat();
-
         this.flazh = flazh;
+        this.messages = [];
 
-        for(let m of ms) {
-            if(m.type === undefined) throw new Error('a client message is missing the type attribute');
-            if(module.MSG_TYPES_CLI.indexOf(m.type) < 0) throw new Error('unsupported client message type: ' + m.type);
-        }
+        for(let m of ms) this.pushMessage(m);
+    }
 
-        this.messages = ms;
+    pushMessage(m) {
+        if(m.type === undefined) throw new Error('a client message is missing the type attribute');
+        if(module.MSG_TYPES_CLI.indexOf(m.type) < 0) throw new Error('unsupported client message type: ' + m.type);
+
+        this.messages.push(m);
     }
 
     send() {
