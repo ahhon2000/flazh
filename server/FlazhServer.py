@@ -6,49 +6,31 @@ DEBUG_PLACEHOLDER_FILE = FLAZH_ROOT_DIR / '.debug_placeholder'
 DEBUG = DEBUG_PLACEHOLDER_FILE.exists()
 
 
-class FlazhServerBase:
-    eventHandlers = set()
-
-    @classmethod
-    def evtHandler(Cls, f):
-        Cls.eventHandlers.add(f.__name__)
-        return f
-
-evtHandler = FlazhServerBase.evtHandler
-
-
-class FlazhServer(FlazhServerBase):
-
-    def __init__(self, allowCors=False, **sock_kwarg):
-        super().__init__()
+class FlazhServer:
+    def __init__(self, allowCors=True, **sock_kwarg):
         if allowCors:
-            if not DEBUG: raise Exception(f'the allowCors flag can only be used in DEBUG mode')
             sock_kwarg['cors_allowed_origins'] = '*'
 
         self.sock = sock = socketio.Server(**sock_kwarg)
-
-        for e, hn in sorted(self.eventHandlers):
-            h = getattr(self, hn)
-            sock.on(e, handler=h)
+        self._setupHandlers()
 
         self.app = app = socketio.WSGIApp(sock,
             static_files = {
                 '/': {'content_type': 'text/html', 'filename': 'index.html'},
             }
         )
+    def _setupHandlers(self):
+        sock = self.sock
 
-        @evtHandler
-        def connect(self, sid, environ):
-            sock = self.sock
+        @sock.event
+        def connect(sid, environ):
             print('connect ', sid)
 
-        @evtHandler
-        def my_message(self, sid, data):
-            sock = self.sock
-            print('message ', data)
-            sock.emit('message_response', f'server says: got message: {data}', room=sid)
+        @sock.event
+        def client_message(sid, data):
+            print('client_message: ', data)
+            sock.emit('server_message', f'got message: {data}', room=sid)
 
-        @evtHandler
-        def disconnect(self, sid):
-            sock = self.sock
+        @sock.event
+        def disconnect(sid):
             print('disconnect ', sid)
