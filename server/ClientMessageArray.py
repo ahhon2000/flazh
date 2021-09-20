@@ -1,4 +1,6 @@
-from ServerMessageArray import ServerMessageArray
+from collections import namedtuple
+
+from ServerMessageArray import ServerMessageArray, MSG_TYPES_SRV
 
 MSG_TYPES_CLI = ('auth', 'draw',)
 
@@ -44,25 +46,36 @@ class ClientMessageArray:
         h(m)
 
     def _on_auth(self, m):
-        u = str(m.get('user', ''))
-        if not u: raise Exception('no user')
+        self.user = u = str(m.get('user', ''))
+        self.isAuthenticated = False
 
-        authKey = str(m.get('authKey', ''))
-        if not authKey: raise Exception('no authentication key')
+        S = namedtuple('S', ('status', 'descr'))
+        s = S(127, 'unknown authentication error')
 
-        if (u, authKey) != ('1', 'emmooj4PWRejlBD5X12IZau9XdErXj9P'):
-            raise Exception('wrong credentials')
-
-        self.user = u
-        self.isAuthenticated = True
+        if not u:
+            s = S(1, 'no user')
+        else:
+            authKey = str(m.get('authKey', ''))
+            if not authKey:
+                s = S(2, 'no authentication key')
+            else:
+                if (u, authKey) != ('1', 'emmooj4PWRejlBD5X12IZau9XdErXj9P'):
+                    s = S(3, 'wrong credentials')
+                else:
+                    self.isAuthenticated = True
+                    s = S(0, 'success')
 
         self.pushMessage({
-            'type': 'auth_success',
+            'type': 'auth',
+            'status': s.status,
+            'descr': s.descr,
+            'MSG_TYPES_CLI': MSG_TYPES_CLI,
+            'MSG_TYPES_SRV': MSG_TYPES_SRV,
         })
 
     def _on_draw(self, m):
         self.pushMessage({
-            'type'
+            'error': 'unimplemented method',
         })
 
     def pushErrorMessage(self, descr):

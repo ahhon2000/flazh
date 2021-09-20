@@ -1,8 +1,6 @@
 define(function() {
 
-module = {
-    MSG_TYPES_CLI: ['auth', 'draw'],
-};
+let module = {};
 
 module.ClientMessageArray = class {
     constructor(flazh, ms=[]) {
@@ -14,8 +12,10 @@ module.ClientMessageArray = class {
     }
 
     pushMessage(m) {
+        let fzh = this.flazh;
+
         if(m.type === undefined) throw new Error('a client message is missing the type attribute');
-        if(module.MSG_TYPES_CLI.indexOf(m.type) < 0) throw new Error('unsupported client message type: ' + m.type);
+        if(fzh.MSG_TYPES_CLI.indexOf(m.type) < 0) throw new Error('unsupported client message type: ' + m.type);
 
         this.messages.push(m);
     }

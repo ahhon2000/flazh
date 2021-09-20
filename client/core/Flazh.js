@@ -29,6 +29,9 @@ module.Flazh = class {
         if(!kwarg.server) throw new Error('a server must be given');
         if(!kwarg.user) throw new Error('a user must be given');
 
+        this.MSG_TYPES_CLI = ['auth'];
+        this.MSG_TYPES_SRV = ['auth'];
+
         this.clientMessageArray = undefined;
         this.newClientMessageArray();
 

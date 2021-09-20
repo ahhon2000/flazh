@@ -1,5 +1,5 @@
 
-MSG_TYPES_SRV = ('error', 'auth_success',)
+MSG_TYPES_SRV = ('error', 'auth',)
 
 class ServerMessageArray:
     def __init__(self, fzhs, sid, messages=()):
