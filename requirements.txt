@@ -1,5 +1,11 @@
 python-socketio
-eventlet
+mysql
 mysqlclient
 sqlparse
 more-itertools
+
+python-dateutil
+requests
+
+gunicorn
+eventlet
