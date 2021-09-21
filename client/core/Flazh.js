@@ -53,13 +53,17 @@ module.Flazh = class {
         this.clientMessageArray = cma;
     }
 
-    onReconnect() {
+    login() {
         this.pushMessage({
             type: 'auth',
             user: this.user,
             authKey: this.authKey,
         });
         this.sendMessages();
+    }
+
+    onReconnect() {
+        this.login();
     }
 
     onDisconnect() {

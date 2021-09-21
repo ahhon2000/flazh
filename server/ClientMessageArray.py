@@ -74,9 +74,7 @@ class ClientMessageArray:
         })
 
     def _on_draw(self, m):
-        self.pushMessage({
-            'error': 'unimplemented method',
-        })
+        self.pushErrorMessage('unimplemented method')
 
     def pushErrorMessage(self, descr):
         sma = self.serverMessageArray
