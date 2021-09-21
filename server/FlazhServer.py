@@ -42,6 +42,7 @@ class FlazhServer:
                 }
                 sma = ServerMessageArray(self, sid, [m])
                 sma.send()
+            return "ack"
 
         @sock.event
         def disconnect(sid):
