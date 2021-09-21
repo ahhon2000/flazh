@@ -32,7 +32,8 @@ module.Flazh = class {
         this.MSG_TYPES_CLI = ['auth'];
         this.MSG_TYPES_SRV = ['auth'];
 
-        this.clientMessageArrays = [];
+        this.clientMessageArrays = {};
+        this.curCliMessageArray = undefined;
         this.newClientMessageArray();
 
         Object.assign(this, kwarg);
@@ -50,7 +51,8 @@ module.Flazh = class {
 
     newClientMessageArray() {
         let cma = new ClientMessageArray.ClientMessageArray(this);
-        this.clientMessageArrays.push(cma);
+        this.clientMessageArrays[cma.ref] = cma;
+        this.curCliMessageArray = cma;
     }
 
     login() {
@@ -75,29 +77,18 @@ module.Flazh = class {
         sma.processMessages()
     }
 
-    onMessageArrayOutcome(cma) {
+    discardCliMessageArray(cma) {
         let cmas = this.clientMessageArrays;
-        let cmas2 = cmas.concat();
-        cmas.length = 0;
-
-        for(let cma2 of cmas2) {
-            if(cma2 !== cma) {
-                cmas.push(cma2);
-            }
-        }
+        delete cmas[cma.ref];
     }
 
     pushMessage(m) {
-        m = Object.assign({}, m);
-        let cmas = this.clientMessageArrays;
-        let cma = cmas[cmas.length-1];
-
+        let cma = this.curCliMessageArray;
         cma.pushMessage(m);
     }
 
     sendMessages() {
-        let cmas = this.clientMessageArrays;
-        let cma = cmas[cmas.length-1];
+        let cma = this.curCliMessageArray;
         cma.send();
         this.newClientMessageArray();
     }

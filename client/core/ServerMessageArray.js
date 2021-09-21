@@ -27,7 +27,22 @@ module.ServerMessageArray = class {
             let h = this['on_' + typ];
             if(!h) throw new Error('no handler for server message type ' + typ);
             h.call(this, m);
+
+            this.execCallback(m)
         }
+    }
+
+    execCallback(m) {
+        let cbk = m.callback;
+        if(!cbk) return;
+
+        let cmaRef = m.clientMessageArray
+        if(!cmaRef) throw new Error('cannot execute the callback without a reference to the client message array');
+
+        let cma = fzh.clientMessageArrays[cmaRef];
+        if(!cma) throw new Error('the callback requested by the server is unavailable (no client message array)');
+
+        cma.execCallback(cbk, m);
     }
 
     on_auth(m) {

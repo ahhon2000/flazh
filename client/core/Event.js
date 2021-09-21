@@ -1,6 +1,8 @@
-define({
+define(['core/common'], function(common) {
 
-Event: class {
+let module = {};
+
+module.Event = class {
     constructor(stack, phrase, kwarg) {
         this.stack = stack;
         this.phrase = phrase;
@@ -18,8 +20,7 @@ Event: class {
                 throw new Error('illegal timestamp: ' + sec);
         }
 
-        this.clientEventId = Math.round(new Date().getTime()) + '_' +
-            Math.round(Math.random() * 10e6);
+        this.clientEventId = common.genRandomStr();
 
         this.funcsToExecOnIdAssignment = [];
     }
@@ -91,6 +92,8 @@ Event: class {
             this.createRequest();
         });
     }
-} // class
+};
+
+return module;
 
 }); // define
