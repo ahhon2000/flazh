@@ -3,6 +3,7 @@ import time
 
 import socketio
 from . import ServerMessageArray, ClientMessageArray
+from core import ConcurSensitiveObjs
 
 SOCKET_REINIT_ON_FAILURE_SEC = 10
 
@@ -12,17 +13,31 @@ class FlazhClient:
         self._evtStop = threading.Event()
         self.sock = None
 
-        self.MSG_TYPES_CLI = ['auth']
-        self.MSG_TYPES_SRV = ['auth']
+        self.lock = threading.RLock()
+        self.concur = concur = ConcurSensitiveObjs(lock)
 
-        self.clientMessageArrays = {}
-        self.curCliMessageArray = None
+        with concur:
+            concur.MSG_TYPES_CLI = ['auth']
+            concur.MSG_TYPES_SRV = ['auth']
+
+            concur.clientMessageArrays = {}
+            concur.curCliMessageArray = None
+
         self.newClientMessageArray()
 
+    def setMsgTypes(self, k, mts0):
+        concur = self.concur
+        with concur:
+            mts = getattr(concur, k)
+            mts.clear()
+            mts.extend(mts0)
+
     def newClientMessageArray(self):
+        concur = self.concur
         cma = ClientMessageArray(self)
-        self.clientMessageArrays[cma.ref] = cma
-        curCliMessageArray = cma
+        with concur:
+            concur.clientMessageArrays[cma.ref] = cma
+            concur.curCliMessageArray = cma
 
     def login(self):
         self.pushMessage({
@@ -64,17 +79,23 @@ class FlazhClient:
             print(f'error while processing messages: {e}')
 
     def discardCliMessageArray(self, cma):
-        cmas = self.clientMessageArrays
-        cmas.pop(cma.get('ref'), None)
+        concur = self.concur
+        with concur:
+            cmas = concur.clientMessageArrays
+            cmas.pop(cma.get('ref'), None)
 
     def pushMessage(self, m):
-        cma = self.curCliMessageArray
-        cma.pushMessage(m)
+        concur = self.concur
+        with concur:
+            cma = concur.curCliMessageArray
+            cma.pushMessage(m)
 
     def sendMessages(self):
-        cma = self.curCliMessageArray
-        cma.send()
-        self.newClientMessageArray()
+        concur = self.concur
+        with concur:
+            cma = concur.curCliMessageArray
+            cma.send()
+            self.newClientMessageArray()
 
     def run(self):
         firstConnect = True
