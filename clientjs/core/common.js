@@ -27,7 +27,6 @@ module.genRandomStr = function(k=24) {
 };
 
 let x = module.genRandomStr();
-console.log(x, x.length);
 
 return module;
 
