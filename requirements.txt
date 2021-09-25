@@ -1,4 +1,6 @@
 python-socketio
+websocket-client
+
 mysql
 mysqlclient
 sqlparse
