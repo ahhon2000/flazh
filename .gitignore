@@ -2,6 +2,7 @@ __pycache__
 db.sqlite3
 .*.swp
 tmp.*
+*.log
 venv
 staticfiles
 .debug_placeholder
